@@ -1,0 +1,9 @@
+.gradle
+.idea
+build
+
+app/build
+
+# 데이터 경로 제외
+tmp
+
