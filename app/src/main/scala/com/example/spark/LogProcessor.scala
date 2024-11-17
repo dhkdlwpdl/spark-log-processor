@@ -3,7 +3,6 @@ package com.example.spark
 import com.example.config.Config
 import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 
-
 class LogProcessor(spark: SparkSession) {
 
   def process(config: Config): Boolean = {
@@ -13,7 +12,7 @@ class LogProcessor(spark: SparkSession) {
       saveData(processedDF, config)
       true
     } catch {
-      case Exception as e =>
+      case e: Exception =>
         println(s"ERROR Processing Log Event: $e")
         false
     }
@@ -34,16 +33,18 @@ class LogProcessor(spark: SparkSession) {
   }
 
   private def saveData(df: DataFrame, config: Config): Unit = {
-    val writeData = df.write
-      .format("parquet")
+    val dataPath = s"${config.outputPath}/${config.targetTableName}"
+    df.write
+      .format("delta")
+      .mode("append")
       .option("compression", "snappy")
-      .option("path", s"${config.outputPath}/${config.targetTableName}") // TODO: 테이블이 이미 존제하는데 outputPath를 잘못 입력할 경우 고려 필요
       .partitionBy("event_date_kst")
+      .save(dataPath) // TODO: 테이블이 이미 존제하는데 outputPath를 잘못 입력할 경우 고려 필요
 
     if (!spark.catalog.tableExists(config.targetTableName)) {
-      writeData.saveAsTable(config.targetTableName) // 테이블이 없으면 생성 후 저장
-    } else {
-      writeData.mode("append").save() // 테이블이 있으면 append 모드로 저장
+      spark.sql(s"CREATE SCHEMA IF NOT EXISTS delta LOCATION '${config.outputPath}'")
+      spark.sql(s"CREATE TABLE IF NOT EXISTS delta.${config.targetTableName} USING DELTA LOCATION " +
+        s"'$dataPath'")
     }
   }
 }

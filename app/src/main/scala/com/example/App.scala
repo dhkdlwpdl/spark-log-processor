@@ -5,17 +5,24 @@ package com.example
 import com.example.config.{Config, ConfigUtils}
 import com.example.spark.LogProcessor
 import org.apache.spark.sql.SparkSession
-import scala.util.control.Breaks.break
 
 object App {
   def main(args: Array[String]): Unit = {
     // 설정 파일 로딩
-    val config = ConfigUtils.loadFromProperties("conf/conf.properties")
+    val config = ConfigUtils.loadConfigFromProperties("conf/conf.properties")
+
+    val awsCredentials = ConfigUtils.loadAwsCredentials(".aws/credentials")
 
     val spark = SparkSession.builder()
       .appName("LogProcessor")
       .config("spark.sql.shuffle.partitions", "2")
       .config("spark.driver.bindAddress", "127.0.0.1")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .config("spark.hadoop.fs.s3a.access.key", awsCredentials._1)
+      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials._2)
+      .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+      .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
       .master("local[*]")
       .enableHiveSupport()
       .getOrCreate()
@@ -25,7 +32,7 @@ object App {
     if (processWithRetry(processor, config)) {
       println("Process Succeed !")
     } else {
-      println(s"Failed after $config.maxRetries attempts.")
+      println("Process Failed !")
     }
 
     spark.stop()
@@ -36,16 +43,15 @@ object App {
     var success = false
 
     // 최대 재시도 횟수까지 반복
-    while (attempt < config.maxRetries && !success) {
+    while (attempt <= config.maxRetries && !success) {
       attempt += 1
       println(s"Attempt #$attempt...")
 
       if (processor.process(config)) {
         success = true
-        break
       } else {
         println(s"Attempt #$attempt failed.")
-        if (attempt < config.maxRetries) {
+        if (attempt <= config.maxRetries) {
           println(s"Retrying... ($attempt/${config.maxRetries})")
         }
       }

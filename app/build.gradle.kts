@@ -31,6 +31,13 @@ dependencies {
     implementation("org.apache.spark:spark-hive_2.13:3.5.3")
     implementation("org.postgresql:postgresql:42.2.5")
 
+    // Delta 추가
+    implementation("io.delta:delta-spark_2.13:3.2.1")
+
+    // S3 추가
+    implementation("org.apache.hadoop:hadoop-aws:3.3.1")
+    implementation("com.amazonaws:aws-java-sdk-bundle:1.11.901")
+
     // Use Scalatest for testing our library
     testImplementation(libs.junit)
     // testImplementation(libs.scalatest.v2.v13)

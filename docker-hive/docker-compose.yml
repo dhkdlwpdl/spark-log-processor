@@ -21,7 +21,10 @@ services:
     environment:
       SERVICE_NAME: metastore
       DB_DRIVER: postgres
-      SERVICE_OPTS: "-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore -Djavax.jdo.option.ConnectionUserName=hive -Djavax.jdo.option.ConnectionPassword=hive123!"
+      SERVICE_OPTS: "-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver 
+      -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore 
+      -Djavax.jdo.option.ConnectionUserName=hive 
+      -Djavax.jdo.option.ConnectionPassword=hive123!"
     ports:
       - "9083:9083"
     depends_on:
