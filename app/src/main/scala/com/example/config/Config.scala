@@ -2,13 +2,11 @@ package com.example.config
 
 import java.util.Properties
 import java.io.FileInputStream
-import java.io.File
-import com.amazonaws.auth.AWSCredentials
-import com.amazonaws.auth.profile.ProfileCredentialsProvider
-import com.example.config.ConfigUtils.loadFromProperties
+
 
 case class Config(inputCsvFile: String, targetTableName: String, outputPath: String,
                   maxRetries: Int)
+case class AwsCredentials(awsAccessKey: String, awsSecretKey: String)
 
 object ConfigUtils {
   // properties 파일을 읽어 Config 객체를 반환하는 메서드
@@ -32,12 +30,12 @@ object ConfigUtils {
   }
 
   // .aws/credentials 파일에서 AWS 자격 증명을 로드하는 메서드
-  def loadAwsCredentials(filePath: String): (String, String) = {
+  def loadAwsCredentials(filePath: String): AwsCredentials = {
     val properties = loadFromProperties(filePath)
 
     val awsAccessKey = properties.getProperty("aws_access_key_id")
     val awsSecretKey = properties.getProperty("aws_secret_access_key")
 
-    (awsAccessKey, awsSecretKey)
+    AwsCredentials(awsAccessKey, awsSecretKey)
   }
 }

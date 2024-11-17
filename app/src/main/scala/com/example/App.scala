@@ -6,21 +6,23 @@ import com.example.config.{Config, ConfigUtils}
 import com.example.spark.LogProcessor
 import org.apache.spark.sql.SparkSession
 
+import java.nio.file.Paths
+
 object App {
   def main(args: Array[String]): Unit = {
-    // 설정 파일 로딩
-    val config = ConfigUtils.loadConfigFromProperties("conf/conf.properties")
-
-    val awsCredentials = ConfigUtils.loadAwsCredentials(".aws/credentials")
+    // 설정 파일 로드
+    val SPARK_HOME = sys.env.getOrElse("SPARK_HOME", "")
+    val confFile = Paths.get(SPARK_HOME, "conf/conf.properties").toString
+    val config = ConfigUtils.loadConfigFromProperties(Paths.get(SPARK_HOME, "conf/conf.properties").toString)
+    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/.aws_credentials_local").toString)
 
     val spark = SparkSession.builder()
       .appName("LogProcessor")
-      .config("spark.sql.shuffle.partitions", "2")
-      .config("spark.driver.bindAddress", "127.0.0.1")
+//      .config("spark.driver.bindAddress", "127.0.0.1")
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-      .config("spark.hadoop.fs.s3a.access.key", awsCredentials._1)
-      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials._2)
+      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
+      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
       .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
       .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
       .master("local[*]")

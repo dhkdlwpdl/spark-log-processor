@@ -21,18 +21,18 @@ repositories {
 dependencies {
     // This dependency is used by the application.
     implementation(libs.guava)
-    implementation("org.scala-lang:scala-library:2.13.15")
+    implementation("org.scala-lang:scala-library:2.12.13")
 
     // Spark 추가
-    implementation("org.apache.spark:spark-core_2.13:3.5.3")
-    implementation("org.apache.spark:spark-sql_2.13:3.5.3")
+    implementation("org.apache.spark:spark-core_2.12:3.5.3")
+    implementation("org.apache.spark:spark-sql_2.12:3.5.3")
 
     // Hive 추가
-    implementation("org.apache.spark:spark-hive_2.13:3.5.3")
+    implementation("org.apache.spark:spark-hive_2.12:3.5.3")
     implementation("org.postgresql:postgresql:42.2.5")
 
     // Delta 추가
-    implementation("io.delta:delta-spark_2.13:3.2.1")
+    implementation("io.delta:delta-spark_2.12:3.2.1")
 
     // S3 추가
     implementation("org.apache.hadoop:hadoop-aws:3.3.1")
