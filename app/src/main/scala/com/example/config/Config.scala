@@ -3,7 +3,8 @@ package com.example.config
 import java.util.Properties
 import java.io.FileInputStream
 
-case class Config(inputCsvFile: String, targetTableName: String, outputPath: String)
+case class Config(inputCsvFile: String, targetTableName: String, outputPath: String,
+                  maxRetries: Int)
 
 object ConfigUtils {
   // properties 파일을 읽어 Config 객체를 반환하는 메서드
@@ -17,7 +18,8 @@ object ConfigUtils {
     Config(
       inputCsvFile = properties.getProperty("inputCsvFile"),
       targetTableName = properties.getProperty("targetTableName"),
-      outputPath = properties.getProperty("outputPath")
+      outputPath = properties.getProperty("outputPath"),
+      maxRetries = properties.getProperty("maxRetries", "5").toInt
     )
   }
 }

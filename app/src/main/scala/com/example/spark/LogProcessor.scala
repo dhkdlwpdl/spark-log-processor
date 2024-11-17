@@ -6,10 +6,17 @@ import org.apache.spark.sql.{DataFrame, SparkSession, functions => F}
 
 class LogProcessor(spark: SparkSession) {
 
-  def process(config: Config): Unit = {
-    val df = readData(config.inputCsvFile)
-    val processedDF = transformData(df)
-    saveData(processedDF, config)
+  def process(config: Config): Boolean = {
+    try {
+      val df = readData(config.inputCsvFile)
+      val processedDF = transformData(df)
+      saveData(processedDF, config)
+      true
+    } catch {
+      case Exception as e =>
+        println(s"ERROR Processing Log Event: $e")
+        false
+    }
   }
 
   private def readData(inputPath: String): DataFrame = {
