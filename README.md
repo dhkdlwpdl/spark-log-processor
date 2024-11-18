@@ -20,14 +20,14 @@
 - 동적 테이블 생성/적재: 테이블이 존재하지 않으면 새로 생성하고, 이미 존재하면 append 모드로 데이터를 추가
 
 ## 사용 방법
-### 환경 구성
+### 1. 환경 구성
 #### Spark 클러스터
 Spark 클러스터는 기구축된 환경을 사용하는 것을 가정
 
-#### Hive Meatstore Setup
-> 기 구축된 Hive 환경을 사용할 경우 이 단계는 진행하지 않습니다.
+#### (Optional) Hive Meatstore Setup
+**!기 구축된 Hive 환경을 사용할 경우 진행하지 않음!**
 
-아래 명령어를 통해 Docker 기반으로 Hive를 설정하고 실행
+아래 명령어를 통해 Docker 기반으로 Hive Metastore 설치
 ```shell
 docker compose -f docker-hive/docker-compose.yml up -d --build
 ```
