@@ -10,36 +10,60 @@ import java.nio.file.Paths
 
 object App {
   def main(args: Array[String]): Unit = {
-    // 설정 파일 로드
+    /**
+     * 사용자 설정 파일 로드
+     * $SPARK_HOME 환경변수를 사용하여 설정 파일 경로 지정
+     */
     val SPARK_HOME = sys.env.getOrElse("SPARK_HOME", "")
-    val confFile = Paths.get(SPARK_HOME, "conf/conf.properties").toString
     val config = ConfigUtils.loadConfigFromProperties(Paths.get(SPARK_HOME, "conf/conf.properties").toString)
-//    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/credentials-local").toString)
+    // 로컬 Idea에서 실행 시 아래 주석 해제
+    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/credentials-local").toString)
 
+    /**
+     * SparkSession 구성
+     * Delta Lake 및 S3 지원 관련 설정 적용
+     */
     val spark = SparkSession.builder()
       .appName("LogProcessor")
 //      .config("spark.driver.bindAddress", "127.0.0.1")
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-//      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
-//      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
+      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
+      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
       .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
       .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
       .master("local[*]")
       .enableHiveSupport()
       .getOrCreate()
 
+    /**
+     * 로그 처리 실행
+     * 처리 성공 여부를 확인하고 결과 출력
+     */
     val processor = new LogProcessor(spark)
-
     if (processWithRetry(processor, config)) {
       println("Process Succeed !")
     } else {
       println("Process Failed !")
     }
 
+    /**
+     * SparkSession 종료
+     */
     spark.stop()
   }
 
+  /**
+   * 사용자가 설정한 maxRetries 값을 고려하여 로그 처리 프로세스 실행
+   * @return 최종 실행 결과 반환 (true: 성공, false: 실패)
+   */
+
+  /**
+   * 설정한 최대 재시도 횟수(maxRetries)를 고려하여 로그 처리 프로세스를 실행
+   * @param processor LogProcessor 객체
+   * @param config 애플리케이션 설정 (Config case class)
+   * @return 최종 처리 결과 반환 (true: 성공, false: 실패)
+   */
   private def processWithRetry(processor: LogProcessor, config: Config): Boolean = {
     var attempt = 0
     var success = false

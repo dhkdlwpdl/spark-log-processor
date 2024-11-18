@@ -44,6 +44,7 @@ docker compose -f docker-hive/docker-compose.yml up -d --build
 - `targetTableName`: 데이터를 적재할 Hive External Table의 이름
 - `outputPath`: Parquet 파일이 저장될 경로. S3 지원
 - `maxRetries`: 작업 실패 시 최대 재시도 횟수 (default: 5)
+**!최초 실행 시 테이블 이름이 유니크한지 확인 및 데이터 저장 경로가 비어 있는지 확인 필요**
 
 #### AWS Credentials (`.aws_credentails`)
 데이터 저장 경로로 AWS를 사용하는 경우 Credentail 정보 입력 필요
@@ -69,6 +70,27 @@ $SPARK_HOME/bin/spark-submit --class com.example.App \
   --packages org.postgresql:postgresql:42.2.5,io.delta:delta-spark_2.12:3.2.1,org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.11.901 \
   $SPARK_HOME/app.jar
 ```
+`Process Succeed !`가 출력되고 프로그램이 종료되는 경우 프로그램이 정상적으로 완료된 것.
 
 ### 5. 결과 확인
-`Process Succeed !`가 출력되는 경우 프로그램이 정상적으로 완료됨
+spark-log-processor 애플리케이션은 기본적으로 Delta Lake, S3를 통해 데이터를 적재하며,
+delta 스키마를 default 스키마로 사용하고 있음.
+
+따라서 AWS Credential이 구성된 환경(`~/.aws/credentials` 파일이 존재하는 환경)에서 아래와 같은 명령어로 데이터 조회 가능
+
+쿼리 질의가 가능한 Spark Application 실행 (예) spark-sql)
+```shell
+spark-sql \
+  --packages org.postgresql:postgresql:42.2.5,io.delta:delta-spark_2.12:3.2.1,org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.11.901 \
+  --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+  --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+```
+
+Spark SQL을 통한 질의
+```sparksql
+# 데이터베이스의 스키마 변경
+USE delta;
+
+# 테이블의 데이터 조회
+SELECT * FROM test_table Limit 100;
+```
