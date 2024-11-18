@@ -57,8 +57,9 @@ gradlew clean build
 ```
 
 빌드가 완료되면, 결과물은 Spark Driver Program 실행 노드의 아래 경로로 이동시킴
-- `conf/*` -> `$SPARK_HOME/conf`
-- `app/build/libs/app.jar` -> `$SPARK_HOME`
+- `conf/conf.properties`, `conf/hive-site.xml` -> `$SPARK_HOME/conf/`
+- `conf/credentials` -> `.aws/`
+- `app/build/libs/app.jar` -> `$SPARK_HOME/`
 
 
 ### 4. Spark Application 실행
@@ -66,7 +67,7 @@ gradlew clean build
 ```shell
 $SPARK_HOME/bin/spark-submit --class com.example.App \
   --packages org.postgresql:postgresql:42.2.5,io.delta:delta-spark_2.12:3.2.1,org.apache.hadoop:hadoop-aws:3.3.1,com.amazonaws:aws-java-sdk-bundle:1.11.901 \
-  app.jar
+  $SPARK_HOME/app.jar
 ```
 
 ### 5. 결과 확인

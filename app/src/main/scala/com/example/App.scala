@@ -14,15 +14,15 @@ object App {
     val SPARK_HOME = sys.env.getOrElse("SPARK_HOME", "")
     val confFile = Paths.get(SPARK_HOME, "conf/conf.properties").toString
     val config = ConfigUtils.loadConfigFromProperties(Paths.get(SPARK_HOME, "conf/conf.properties").toString)
-    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/.aws_credentials_local").toString)
+//    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/credentials-local").toString)
 
     val spark = SparkSession.builder()
       .appName("LogProcessor")
 //      .config("spark.driver.bindAddress", "127.0.0.1")
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
-      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
+//      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
+//      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
       .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
       .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
       .master("local[*]")
