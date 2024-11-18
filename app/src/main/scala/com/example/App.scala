@@ -17,7 +17,7 @@ object App {
     val SPARK_HOME = sys.env.getOrElse("SPARK_HOME", "")
     val config = ConfigUtils.loadConfigFromProperties(Paths.get(SPARK_HOME, "conf/conf.properties").toString)
     // 로컬 Idea에서 실행 시 아래 주석 해제
-    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/credentials-local").toString)
+//    val awsCredentials = ConfigUtils.loadAwsCredentials(Paths.get(SPARK_HOME, "conf/credentials-local").toString)
 
     /**
      * SparkSession 구성
@@ -28,11 +28,11 @@ object App {
 //      .config("spark.driver.bindAddress", "127.0.0.1")
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
-      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
-      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
+//      .config("spark.hadoop.fs.s3a.access.key", awsCredentials.awsAccessKey)
+//      .config("spark.hadoop.fs.s3a.secret.key", awsCredentials.awsSecretKey)
       .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
       .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
-      .master("local[*]")
+//      .master("local[*]")
       .enableHiveSupport()
       .getOrCreate()
 
